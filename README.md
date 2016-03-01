@@ -1,2 +1,2 @@
-# data_manager_novo_index_builder
+# Data Manager NovoAlign Index Builder
 Data Manager to build Novo-Align index 
