@@ -1,112 +1,97 @@
 #!/usr/bin/env python
 # Z. Mashologu (SANBI-UWC)
-#import dict as dict
+# import dict as dict
 import os
-import shutil
-import optparse
+import sys
 import urllib2
 import logging
-log = logging.getLogger( __name__ )
+import argparse
+import shlex
+from subprocess import check_call, CalledProcessError
+from __future__ import print_function
+
+log = logging.getLogger(__name__)
 
 from json import loads, dumps
 
-def cleanup_before_exit( tmp_dir ):
-    if tmp_dir and os.path.exists( tmp_dir ):
-        shutil.rmtree( tmp_dir )
+def get_dbkey_id_name(params, dbkey_description=None):
+    dbkey = params['param_dict']['dbkey']
+    # TODO: ensure sequence_id is unique and does not already appear in location file
+    sequence_id = params['param_dict']['sequence_id']
+    if not sequence_id:
+        sequence_id = dbkey  # uuid.uuid4() generate and use an uuid instead?
 
-def _stream_fasta_to_file( fasta_stream, target_directory, params, close_stream=True ):
-    fasta_base_filename = "%s.fa" % sequence_id
-    fasta_filename = os.path.join( target_directory, fasta_base_filename )
-    fasta_writer = open( fasta_filename, 'wb+' )
+    sequence_name = params['param_dict']['sequence_name']
+    if not sequence_name:
+        sequence_name = dbkey_description
+        if not sequence_name:
+            sequence_name = dbkey
+    return dbkey, sequence_id, sequence_name
 
-    if isinstance( fasta_stream, list ) and len( fasta_stream ) == 1:
-        fasta_stream = fasta_stream[0]
 
-    if isinstance( fasta_stream, list ):
-        last_char = None
-        for fh in fasta_stream:
-            if last_char not in [ None, '\n', '\r' ]:
-                fasta_writer.write( '\n' )
-            while True:
-                data = fh.read( CHUNK_SIZE )
-                if data:
-                    fasta_writer.write( data )
-                    last_char = data[-1]
-                else:
-                    break
-            if close_stream:
-                fh.close()
+def _make_novocraft_index(fasta_filename, target_directory):
+    if os.path.exists(target_directory) and not os.path.isdir(target_directory):
+        print("Output directory path already exists but is not a directory: {}".format(target_directory),
+              file=sys.stderr)
+    elif not os.path.exists(target_directory):
+        os.mkdir(target_directory)
+
+    if 'GALAXY_SLOTS' in os.environ:
+        nslots = os.environ['GALAXY_SLOTS']
     else:
-        while True:
-            data = fasta_stream.read( CHUNK_SIZE )
-            if data:
-                fasta_writer.write( data )
-            else:
-                break
-        if close_stream:
-            fasta_stream.close()
+        nslots = 1
 
-    fasta_writer.close()
+    cmdline_str = 'STAR --runMode genomeGenerate --genomeDir {} --genomeFastaFiles {} --runThreadN {}'.format(
+        target_directory,
+        fasta_filename,
+        nslots)
+    cmdline = shlex.split(cmdline_str)
+    try:
+        check_call(cmdline)
+    except CalledProcessError:
+        print("Error building RNA STAR index", file=sys.stderr)
+    return (target_directory)
 
-    return dict( path=fasta_base_filename )
 
-def download_from_url( data_manager_dict, params, target_directory, dbkey, sequence_id, sequence_name ):
-    #TODO: we should automatically do decompression here
-    urls = filter( bool, map( lambda x: x.strip(), params['param_dict']['reference_source']['user_url'].split( '\n' ) ) )
-    fasta_reader = [ urllib2.urlopen( url ) for url in urls ]
+def download_from_url(params, target_directory):
+    # TODO: we should automatically do decompression here
+    urls = filter(bool, map(lambda x: x.strip(), params['param_dict']['reference_source']['user_url'].split('\n')))
+    fasta_reader = [urllib2.urlopen(url) for url in urls]
 
-    data_table_entry = _stream_fasta_to_file( fasta_reader, target_directory, params )
-    _add_data_table_entry( data_manager_dict, data_table_entry )
+    _make_novocraft_index(fasta_reader, target_directory)
 
-def download_from_history( data_manager_dict, params, target_directory):
-    #TODO: allow multiple FASTA input files
+
+def download_from_history( params, target_directory):
+    # TODO: allow multiple FASTA input files
     input_filename = params['param_dict']['reference_source']['input_fasta']
-    if isinstance( input_filename, list ):
-        fasta_reader = [ open( filename, 'rb' ) for filename in input_filename ]
-    else:
-        fasta_reader = open( input_filename )
 
-    data_table_entry = _stream_fasta_to_file( fasta_reader, target_directory, params )
-    _add_data_table_entry( data_manager_dict, data_table_entry )
+    _make_novocraft_index(input_filename, target_directory)
 
-def copy_from_directory( data_manager_dict, params, target_directory ):
-    input_filename = params['param_dict']['reference_source']['fasta_filename']
-    create_symlink = params['param_dict']['reference_source']['create_symlink'] == 'create_symlink'
-    if create_symlink:
-        data_table_entry = _create_symlink( input_filename, target_directory )
-    else:
-        if isinstance( input_filename, list ):
-            fasta_reader = [ open( filename, 'rb' ) for filename in input_filename ]
-        else:
-            fasta_reader = open( input_filename )
-        data_table_entry = _stream_fasta_to_file( fasta_reader, target_directory, params )
-    _add_data_table_entry( data_manager_dict, data_table_entry )
-
-def _create_symlink( input_filename, target_directory ):
-    fasta_base_filename = "%s.fa" % sequence_id
-    fasta_filename = os.path.join( target_directory, fasta_base_filename )
-    os.symlink( input_filename, fasta_filename )
-    return dict( path=fasta_base_filename )
-
-REFERENCE_SOURCE_TO_DOWNLOAD = dict( url=download_from_url, history=download_from_history, directory=copy_from_directory )
+REFERENCE_SOURCE_TO_DOWNLOAD = dict(url=download_from_url, history=download_from_history)
 
 def main():
-    #Parse Command Line
-    parser = optparse.OptionParser()
-    parser.add_option( '-d', '--data_table_name' )
+    parser = argparse.ArgumentParser(description="Generate Novo-align genome index and JSON describing this")
+    parser.add_argument('output_filename')
+    parser.add_argument('--data_table_name', default='novocraft_index')
     (options, args) = parser.parse_args()
 
-    filename = args[0]
+    filename = args.output_filename
 
-    params = loads( open( filename ).read() )
-    target_directory = params[ 'output_data' ][0]['extra_files_path']
-    os.mkdir( target_directory )
-    data_manager_dict = {}
+    params = loads(open(filename).read())
+    target_directory = params['output_data'][0]['extra_files_path']
+    os.mkdir(target_directory)
 
-    #Fetch the FASTA
-    REFERENCE_SOURCE_TO_DOWNLOAD[ params['param_dict']['reference_source']['reference_source_selector'] ]( data_manager_dict, params, target_directory )
+    dbkey, sequence_id, sequence_name = get_dbkey_id_name(params, dbkey_description=options.dbkey_description)
+    if dbkey in [None, '', '?']:
+        raise Exception('"%s" is not a valid dbkey. You must specify a valid dbkey.' % (dbkey))
 
-    #save info to json file
-    open( filename, 'wb' ).write( dumps( data_manager_dict ) )
+    # Fetch the FASTA
+    REFERENCE_SOURCE_TO_DOWNLOAD[params['param_dict']['reference_source']['reference_source_selector']]\
+        (params, target_directory, dbkey, sequence_id, sequence_name)
+
+    data_table_entry = dict(value=sequence_id, dbkey=dbkey, name=sequence_name, path=target_directory)
+
+    output_datatable_dict = dict(data_tables={args.data_table_name: [data_table_entry]})
+    open(filename, 'wb').write(dumps(output_datatable_dict))
 
 if __name__ == "__main__": main()
