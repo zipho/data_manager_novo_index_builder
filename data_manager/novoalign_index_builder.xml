@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <tool id="novoalign_index_builder" name="NOVO ALIGN index" version="0.0.1">
     <description>Build an index for use by the Novo Align mapping tool</description>
+    <requirements>
+        <requirement type="package" version="0.0.1d">novoalign</requirement>
+    </requirements>
     <stdio>
         <exit_code range=":-1" />
         <exit_code range="1:" />
     </stdio>
-    <requirements>
-        <requirement type="package" version="0.0.1d">novoalign</requirement>
-    </requirements>
     <command interpreter="python">
         novoalign_index_builder.py "${out_file}" --data_table_name "novo_index"
     </command>
@@ -35,10 +35,6 @@
     <outputs>
         <data name="out_file" format="data_manager_json" />
     </outputs>
-    <help>Help!</help>
-    <citations>
-        <citation></citation>
-    </citations>
     <tests>
         <test>
             <param name="dbkey" value="anoGam1"/>
@@ -50,4 +46,8 @@
             <output name="out_file" file="phiX174_as_anoGam1.data_manager_json"/>
         </test>
     </tests>
+    <help>Help!</help>
+    <citations>
+        <citation></citation>
+    </citations>
 </tool>

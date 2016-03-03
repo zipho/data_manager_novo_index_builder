@@ -96,10 +96,6 @@ def main():
     parser.add_option( '-d', '--data_table_name' )
     (options, args) = parser.parse_args()
 
-    log.debug(" -------------------------------------------- ")
-    log.debug(options)
-    log.debug(args)
-
     filename = args[0]
 
     params = loads( open( filename ).read() )

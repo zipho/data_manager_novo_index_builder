@@ -1,6 +1,3 @@
 <?xml version="1.0"?>
 <tool_dependency>
-    <package name="novoalign" version="0.0.1">
-        <repository name="package_novoalign_0_0_1" owner="sanbi-uwc" prior_installation_required="True" />
-    </package>
 </tool_dependency>
