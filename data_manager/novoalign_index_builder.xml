@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<tool id="novoalign_index_builder" name="NOVO ALIGN index" version="0.0.1">
+<tool id="novoalign_index_builder" name="NOVO ALIGN index" tool_type="manage_data" version="0.0.1">
     <description>Build an index for use by the Novo Align mapping tool</description>
     <requirements>
         <requirement type="package" version="0.0.1d">novoalign</requirement>
@@ -29,20 +29,13 @@
             <param type="boolean" name="create_symlink" truevalue="create_symlink" falsevalue="copy_file" label="Create symlink to orignal data instead of copying" checked="False" />
           </when>
         </conditional>
-        <!-- <param type="text" name="sequence_name" value="" label="Name of sequence" />
-        <param type="text" name="sequence_id" value="" label="ID for sequence" /> -->
     </inputs>
     <outputs>
         <data name="out_file" format="data_manager_json" />
     </outputs>
     <tests>
         <test>
-            <param name="dbkey" value="anoGam1"/>
-            <param name="sequence_name" value=""/>
-            <param name="sequence_id" value=""/>
             <param name="reference_source_selector" value="history"/>
-            <param name="input_fasta" value="phiX174.fasta"/>
-            <param name="sort_selector" value="as_is"/>
             <output name="out_file" file="phiX174_as_anoGam1.data_manager_json"/>
         </test>
     </tests>
