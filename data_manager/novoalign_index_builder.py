@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Z. Mashologu (SANBI-UWC)
 # import dict as dict
+from __future__ import print_function
 import os
 import sys
 import urllib2
@@ -8,7 +9,6 @@ import logging
 import argparse
 import shlex
 from subprocess import check_call, CalledProcessError
-from __future__ import print_function
 
 log = logging.getLogger(__name__)
 
@@ -41,11 +41,12 @@ def _make_novocraft_index(fasta_filename, target_directory):
     else:
         nslots = 1
 
-    cmdline_str = 'STAR --runMode genomeGenerate --genomeDir {} --genomeFastaFiles {} --runThreadN {}'.format(
-        target_directory,
-        fasta_filename,
-        nslots)
-    cmdline = shlex.split(cmdline_str)
+    #cmdline_str = 'STAR --runMode genomeGenerate --genomeDir {} --genomeFastaFiles {} --runThreadN {}'.format(
+    #    target_directory,
+    #    fasta_filename,
+    #    nslots)
+    #cmdline = shlex.split(cmdline_str)
+    cmdline = ('touch', '{}/foo.nix'.format(target_directory))
     try:
         check_call(cmdline)
     except CalledProcessError:
@@ -72,22 +73,23 @@ REFERENCE_SOURCE_TO_DOWNLOAD = dict(url=download_from_url, history=download_from
 def main():
     parser = argparse.ArgumentParser(description="Generate Novo-align genome index and JSON describing this")
     parser.add_argument('output_filename')
+    parser.add_argument('--dbkey_description')
     parser.add_argument('--data_table_name', default='novocraft_index')
-    (options, args) = parser.parse_args()
+    args = parser.parse_args()
 
     filename = args.output_filename
 
     params = loads(open(filename).read())
     target_directory = params['output_data'][0]['extra_files_path']
-    os.mkdir(target_directory)
+    os.makedirs(target_directory)
 
-    dbkey, sequence_id, sequence_name = get_dbkey_id_name(params, dbkey_description=options.dbkey_description)
+    dbkey, sequence_id, sequence_name = get_dbkey_id_name(params, dbkey_description=args.dbkey_description)
     if dbkey in [None, '', '?']:
         raise Exception('"%s" is not a valid dbkey. You must specify a valid dbkey.' % (dbkey))
 
     # Fetch the FASTA
     REFERENCE_SOURCE_TO_DOWNLOAD[params['param_dict']['reference_source']['reference_source_selector']]\
-        (params, target_directory, dbkey, sequence_id, sequence_name)
+        (params, target_directory)
 
     data_table_entry = dict(value=sequence_id, dbkey=dbkey, name=sequence_name, path=target_directory)
 
