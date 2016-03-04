@@ -5,14 +5,14 @@
             <output>
                 <column name="value" />
                 <column name="dbkey" />
-                <column name="name" />
-                <column name="path" output_ref="out_file" >
-                    <move type="file">
-                        <source>${path}</source>
-                        <target base="${GALAXY_DATA_INDEX_DIR}">${path}</target>
+                <column name="path" output_ref="out_dir">
+                    <move type="directory" relative_symlinks="True">
+                        <!-- no need to set source, gets taken from out_dir.extra_files_path -->
+                        <target base="${GALAXY_DATA_MANAGER_DATA_PATH}">${dbkey}/novocraft_index/${value}</target>
                     </move>
-                    <value_translation>${GALAXY_DATA_INDEX_DIR}/${path}</value_translation>
-                </column>
+                    <value_translation>${GALAXY_DATA_MANAGER_DATA_PATH}/{$dbkey}/novocraft_index/${value}/${path}</value_translation>
+                    <value_translation type="function">abspath</value_translation>
+                </column> 
             </output>
         </data_table>
     </data_manager>
