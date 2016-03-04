@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <tool id="novoalign_index_builder" name="NOVO ALIGN index" tool_type="manage_data" version="0.0.1">
-    <description>Build an index for use by the Novo Align mapping tool</description>
+    <description>Build an index for use by the Novo Craft mapping tool</description>
     <stdio>
         <exit_code range=":-1" />
         <exit_code range="1:" />
     </stdio>
     <command interpreter="python">
-        novoalign_index_builder.py "${out_file}" --dbkey_description ${ dbkey.get_display_text() } --data_table_name "novocraft_index"
+        novocraft_index_builder.py "${out_file}" --dbkey_description ${ dbkey.get_display_text() } --data_table_name "novocraft_index"
     </command>
     <inputs>
         <param name="dbkey" type="genomebuild" label="DBKEY to assign to data" />
