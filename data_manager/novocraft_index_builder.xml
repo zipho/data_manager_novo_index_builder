@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<tool id="novoalign_index_builder" name="NOVO ALIGN index" tool_type="manage_data" version="0.0.1">
+<tool id="novocraft_index_builder" name="NOVO CRAFT index" tool_type="manage_data" version="0.0.1">
     <description>Build an index for use by the Novo Craft mapping tool</description>
     <stdio>
         <exit_code range=":-1" />
