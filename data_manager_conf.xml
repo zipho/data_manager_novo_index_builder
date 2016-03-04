@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <data_managers>
-    <data_manager tool_file="data_manager/novoalign_index_builder.xml" id="novoalign_index_builder" version="0.0.1">
+    <data_manager tool_file="data_manager/novocraft_index_builder.xml" id="novocraft_index_builder" version="0.0.1">
         <data_table name="novocraft_index">
             <output>
                 <column name="value" />
