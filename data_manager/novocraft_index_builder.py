@@ -47,7 +47,7 @@ def _make_novocraft_index(data_manager_dict, fasta_filename, target_directory, d
     #    fasta_filename,
     #    nslots)
     #cmdline = shlex.split(cmdline_str)
-    index_filename = 'foo.nix'
+    index_filename = 'foo'
     cmdline = ('touch', '{}/{}'.format(target_directory, index_filename))
     try:
         check_call(cmdline)
