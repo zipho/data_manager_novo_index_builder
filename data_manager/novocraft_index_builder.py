@@ -81,7 +81,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate Novo-align genome index and JSON describing this")
     parser.add_argument('output_filename')
     parser.add_argument('--dbkey_description')
-    parser.add_argument('--data_table_name', default='novocraft_index')
+    parser.add_argument('--data_table_name', default='novocraft_indexes')
     args = parser.parse_args()
 
     filename = args.output_filename
