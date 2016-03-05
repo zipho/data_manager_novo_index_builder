@@ -54,7 +54,7 @@ def _make_novocraft_index(data_manager_dict, fasta_filename, target_directory, d
     except CalledProcessError:
         print("Error building RNA STAR index", file=sys.stderr)
 
-    data_table_entry = dict( value=sequence_id, dbkey=dbkey, name=sequence_name, path=target_directory )
+    data_table_entry = dict( value=sequence_id, dbkey=dbkey, name=sequence_name, path=os.path.join(target_directory, index_filename) )
     _add_data_table_entry( data_manager_dict, data_table_name, data_table_entry )
     return ( index_filename )
 
