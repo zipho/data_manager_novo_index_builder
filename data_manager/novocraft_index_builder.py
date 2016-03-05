@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 from json import loads, dumps
 
-DEFAULT_DATA_TABLE_NAME = "novocraft_indexes"
+DEFAULT_DATA_TABLE_NAME = "novocraft_index"
 
 def get_dbkey_id_name(params, dbkey_description=None):
     dbkey = params['param_dict']['dbkey']
@@ -81,7 +81,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate Novo-align genome index and JSON describing this")
     parser.add_argument('output_filename')
     parser.add_argument('--dbkey_description')
-    parser.add_argument('--data_table_name', default='novocraft_indexes')
+    parser.add_argument('--data_table_name', default='novocraft_index')
     args = parser.parse_args()
 
     filename = args.output_filename
