@@ -47,7 +47,8 @@ def _make_novocraft_index(data_manager_dict, fasta_filename, target_directory, d
     #    fasta_filename,
     #    nslots)
     #cmdline = shlex.split(cmdline_str)
-    cmdline = ('touch', '{}/foo.nix'.format(target_directory))
+    index_filename = 'foo.nix'
+    cmdline = ('touch', '{}/{}'.format(target_directory, index_filename))
     try:
         check_call(cmdline)
     except CalledProcessError:
@@ -55,6 +56,7 @@ def _make_novocraft_index(data_manager_dict, fasta_filename, target_directory, d
 
     data_table_entry = dict( value=sequence_id, dbkey=dbkey, name=sequence_name, path=target_directory )
     _add_data_table_entry( data_manager_dict, data_table_name, data_table_entry )
+    return ( index_filename )
 
 def _add_data_table_entry( data_manager_dict, data_table_name, data_table_entry ):
     data_manager_dict['data_tables'] = data_manager_dict.get( 'data_tables', {} )
@@ -78,7 +80,7 @@ def download_from_history( data_manager_dict, params, target_directory, dbkey, s
 REFERENCE_SOURCE_TO_DOWNLOAD = dict(url=download_from_url, history=download_from_history)
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate Novo-align genome index and JSON describing this")
+    parser = argparse.ArgumentParser(description="Generate Novo-craft genome index and JSON describing this")
     parser.add_argument('output_filename')
     parser.add_argument('--dbkey_description')
     parser.add_argument('--data_table_name', default='novocraft_index')

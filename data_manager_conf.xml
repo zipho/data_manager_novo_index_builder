@@ -7,8 +7,10 @@
                 <column name="dbkey" />
                 <column name="name" />
                 <column name="path" output_ref="out_file">
-                    <move type="directory" relative_symlinks="True">
+                    <move type="file">
+                        <!--<move type="directory" relative_symlinks="True">-->
                         <!-- no need to set source, gets taken from out_dir.extra_files_path -->
+                         <source>${path}</source> <!-- File name within the extra files path -->
                         <target base="${GALAXY_DATA_MANAGER_DATA_PATH}">${dbkey}/novocraft_index/${value}</target>
                     </move>
                     <value_translation>${GALAXY_DATA_MANAGER_DATA_PATH}/{$dbkey}/novocraft_index/${value}/${path}</value_translation>
