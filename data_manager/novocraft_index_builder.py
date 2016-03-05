@@ -14,6 +14,8 @@ log = logging.getLogger(__name__)
 
 from json import loads, dumps
 
+DEFAULT_DATA_TABLE_NAME = "novocraft_indexes"
+
 def get_dbkey_id_name(params, dbkey_description=None):
     dbkey = params['param_dict']['dbkey']
     # TODO: ensure sequence_id is unique and does not already appear in location file
@@ -28,8 +30,7 @@ def get_dbkey_id_name(params, dbkey_description=None):
             sequence_name = dbkey
     return dbkey, sequence_id, sequence_name
 
-
-def _make_novocraft_index(fasta_filename, target_directory):
+def _make_novocraft_index(data_manager_dict, fasta_filename, target_directory, dbkey, sequence_id, sequence_name, data_table_name=DEFAULT_DATA_TABLE_NAME):
     if os.path.exists(target_directory) and not os.path.isdir(target_directory):
         print("Output directory path already exists but is not a directory: {}".format(target_directory),
               file=sys.stderr)
@@ -51,22 +52,28 @@ def _make_novocraft_index(fasta_filename, target_directory):
         check_call(cmdline)
     except CalledProcessError:
         print("Error building RNA STAR index", file=sys.stderr)
-    return (target_directory)
 
+    data_table_entry = dict( value=sequence_id, dbkey=dbkey, name=sequence_name, path=target_directory )
+    _add_data_table_entry( data_manager_dict, data_table_name, data_table_entry )
 
-def download_from_url(params, target_directory):
+def _add_data_table_entry( data_manager_dict, data_table_name, data_table_entry ):
+    data_manager_dict['data_tables'] = data_manager_dict.get( 'data_tables', {} )
+    data_manager_dict['data_tables'][ data_table_name ] = data_manager_dict['data_tables'].get( data_table_name, [] )
+    data_manager_dict['data_tables'][ data_table_name ].append( data_table_entry )
+    return data_manager_dict
+
+def download_from_url( data_manager_dict, params, target_directory, dbkey, sequence_id, sequence_name, data_table_name=DEFAULT_DATA_TABLE_NAME ):
     # TODO: we should automatically do decompression here
     urls = filter(bool, map(lambda x: x.strip(), params['param_dict']['reference_source']['user_url'].split('\n')))
     fasta_reader = [urllib2.urlopen(url) for url in urls]
 
-    _make_novocraft_index(fasta_reader, target_directory)
+    _make_novocraft_index(data_manager_dict, fasta_reader, target_directory, dbkey, sequence_id, sequence_name, data_table_name)
 
-
-def download_from_history( params, target_directory):
+def download_from_history( data_manager_dict, params, target_directory, dbkey, sequence_id, sequence_name, data_table_name=DEFAULT_DATA_TABLE_NAME ):
     # TODO: allow multiple FASTA input files
     input_filename = params['param_dict']['reference_source']['input_fasta']
 
-    _make_novocraft_index(input_filename, target_directory)
+    _make_novocraft_index(data_manager_dict, input_filename, target_directory, dbkey, sequence_id, sequence_name, data_table_name)
 
 REFERENCE_SOURCE_TO_DOWNLOAD = dict(url=download_from_url, history=download_from_history)
 
@@ -82,18 +89,17 @@ def main():
     params = loads(open(filename).read())
     target_directory = params['output_data'][0]['extra_files_path']
     os.makedirs(target_directory)
+    data_manager_dict = {}
 
     dbkey, sequence_id, sequence_name = get_dbkey_id_name(params, dbkey_description=args.dbkey_description)
+
     if dbkey in [None, '', '?']:
         raise Exception('"%s" is not a valid dbkey. You must specify a valid dbkey.' % (dbkey))
 
     # Fetch the FASTA
     REFERENCE_SOURCE_TO_DOWNLOAD[params['param_dict']['reference_source']['reference_source_selector']]\
-        (params, target_directory)
+        (data_manager_dict, params, target_directory, dbkey, sequence_id, sequence_name, data_table_name=args.data_table_name or DEFAULT_DATA_TABLE_NAME)
 
-    data_table_entry = dict(value=sequence_id, dbkey=dbkey, name=sequence_name, path=target_directory)
-
-    output_datatable_dict = dict(data_tables={args.data_table_name: [data_table_entry]})
-    open(filename, 'wb').write(dumps(output_datatable_dict))
+    open(filename, 'wb').write(dumps( data_manager_dict ))
 
 if __name__ == "__main__": main()

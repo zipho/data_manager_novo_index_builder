@@ -6,7 +6,7 @@
         <exit_code range="1:" />
     </stdio>
     <command interpreter="python">
-        novocraft_index_builder.py "${out_file}" --dbkey_description ${ dbkey.get_display_text() } --data_table_name "novocraft_index"
+        novocraft_index_builder.py "${out_file}" --dbkey_description ${ dbkey.get_display_text() } --data_table_name "novocraft_indexes"
     </command>
     <inputs>
         <param name="dbkey" type="genomebuild" label="DBKEY to assign to data" />
