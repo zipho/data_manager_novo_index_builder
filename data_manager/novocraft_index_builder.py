@@ -37,26 +37,19 @@ def _make_novocraft_index(data_manager_dict, fasta_filename, target_directory, d
     elif not os.path.exists(target_directory):
         os.mkdir(target_directory)
 
-    if 'GALAXY_SLOTS' in os.environ:
-        nslots = os.environ['GALAXY_SLOTS']
-    else:
-        nslots = 1
+    index_filename = os.path.join(target_directory,"%.nix" % sequence_id)
+    cmdline_str = 'novoindex {} {}'.format(index_filename, fasta_filename)
+    cmdline = shlex.split(cmdline_str)
 
-    #cmdline_str = 'STAR --runMode genomeGenerate --genomeDir {} --genomeFastaFiles {} --runThreadN {}'.format(
-    #    target_directory,
-    #    fasta_filename,
-    #    nslots)
-    #cmdline = shlex.split(cmdline_str)
-    index_filename = 'foo'
-    cmdline = ('touch', '{}/{}'.format(target_directory, index_filename))
+    #index_filename = 'foo'
+    #cmdline = ('touch', '{}/{}'.format(target_directory, index_filename))
     try:
         check_call(cmdline)
     except CalledProcessError:
         print("Error building RNA STAR index", file=sys.stderr)
 
-    data_table_entry = dict( value=sequence_id, dbkey=dbkey, name=sequence_name, path=os.path.join(target_directory, index_filename) )
+    data_table_entry = dict( value=sequence_id, dbkey=dbkey, name=sequence_name, path=index_filename )
     _add_data_table_entry( data_manager_dict, data_table_name, data_table_entry )
-    return ( index_filename )
 
 def _add_data_table_entry( data_manager_dict, data_table_name, data_table_entry ):
     data_manager_dict['data_tables'] = data_manager_dict.get( 'data_tables', {} )
