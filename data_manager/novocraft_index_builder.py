@@ -37,13 +37,14 @@ def _make_novocraft_index(data_manager_dict, fasta_filename, target_directory, d
     elif not os.path.exists(target_directory):
         os.mkdir(target_directory)
 
-    index_filename = os.path.join(target_directory,"%.nix" % sequence_id)
+    print(sequence_id)
+    nix_file = sequence_id + ".nix"
+    index_filename = os.path.join(target_directory, nix_file)
     cmdline_str = 'novoindex {} {}'.format(index_filename, fasta_filename)
     cmdline = shlex.split(cmdline_str)
 
-    #index_filename = 'foo'
-    #cmdline = ('touch', '{}/{}'.format(target_directory, index_filename))
     try:
+        print(cmdline)
         check_call(cmdline)
     except CalledProcessError:
         print("Error building RNA STAR index", file=sys.stderr)
@@ -83,7 +84,7 @@ def main():
 
     params = loads(open(filename).read())
     target_directory = params['output_data'][0]['extra_files_path']
-    os.makedirs(target_directory)
+    #os.makedirs(target_directory)
     data_manager_dict = {}
 
     dbkey, sequence_id, sequence_name = get_dbkey_id_name(params, dbkey_description=args.dbkey_description)
