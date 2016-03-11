@@ -6,7 +6,7 @@
         <exit_code range="1:" />
     </stdio>
     <command interpreter="python">
-        novocraft_index_builder.py "${out_file}" --dbkey_description ${ dbkey.get_display_text() } --data_table_name "novocraft_index"
+        novocraft_index_builder.py "${out_file}" --dbkey_description ${ dbkey.get_display_text() } --data_table_name "novocraft_index" --add_system_module ${add_system_module}
     </command>
     <inputs>
         <param name="dbkey" type="genomebuild" label="DBKEY to assign to data" />
@@ -25,6 +25,7 @@
             <param name="input_fasta" type="data" format="fasta" label="FASTA File" multiple="False" optional="False" />
           </when>
         </conditional>
+        <param name="add_system_module" type="boolean" label="Add a Novo-align system Module" checked="true" truevalue="true" value="false" help="Add novoindex system module"/>
     </inputs>
     <outputs>
         <data name="out_file" format="data_manager_json" />
