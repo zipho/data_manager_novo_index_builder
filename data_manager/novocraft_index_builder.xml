@@ -6,13 +6,12 @@
         <exit_code range="1:" />
     </stdio>
     <command interpreter="python">
-        novocraft_index_builder.py "${out_file}" --dbkey_description ${ dbkey.get_display_text() } --data_table_name "novocraft_index" --add_system_module ${add_system_module}
+        novocraft_index_builder.py "${out_file}" --data_table_name "novocraft_index"
     </command>
     <inputs>
-        <param name="dbkey" type="genomebuild" label="DBKEY to assign to data" />
-        <param type="text" name="sequence_name" value="" label="Name of sequence" />
+        <param type="text" name="sequence_name" value="" label="Name of sequence" optional="False" />
         <param type="text" name="sequence_desc" value="" label="Description of sequence" />
-        <param type="text" name="sequence_id" value="" label="ID for sequence" />
+        <param type="text" name="sequence_id" value="" label="ID for sequence" optional="False" />
         <conditional name="reference_source">
           <param name="reference_source_selector" type="select" label="Choose the source for the reference genome">
             <option value="url">URL</option>
@@ -25,7 +24,6 @@
             <param name="input_fasta" type="data" format="fasta" label="FASTA File" multiple="False" optional="False" />
           </when>
         </conditional>
-        <param name="add_system_module" type="boolean" label="Add a Novo-align system Module" checked="true" truevalue="true" value="false" help="Add novoindex system module"/>
     </inputs>
     <outputs>
         <data name="out_file" format="data_manager_json" />
