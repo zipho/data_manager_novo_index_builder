@@ -5,25 +5,21 @@
         <exit_code range=":-1" />
         <exit_code range="1:" />
     </stdio>
+    <requirements>
+        <requirement type="package" version="1.2">samtools</requirement>
+        <requirement type="package" version="3.04.01">novocraft</requirement>
+    </requirements>
     <command interpreter="python">
-        novocraft_index_builder.py "${out_file}" --data_table_name "novocraft_index"
+        novocraft_index_builder.py "${out_file}" --input_filename "${input_fasta.fields.path}" --data_table_name "novocraft_index"
     </command>
     <inputs>
         <param type="text" name="sequence_name" value="" label="Name of sequence" optional="False" />
         <param type="text" name="sequence_desc" value="" label="Description of sequence" />
         <param type="text" name="sequence_id" value="" label="ID for sequence" optional="False" />
-        <conditional name="reference_source">
-          <param name="reference_source_selector" type="select" label="Choose the source for the reference genome">
-            <option value="url">URL</option>
-            <option value="history">History</option>
-          </param>
-          <when value="url">
-            <param type="text" area="True" name="user_url" value="http://" label="URLs" optional="False" />
-          </when>
-          <when value="history">
-            <param name="input_fasta" type="data" format="fasta" label="FASTA File" multiple="False" optional="False" />
-          </when>
-        </conditional>
+        <param name="input_fasta" type="select" label="Genome to index(FASTA format)">
+            <options from_data_table="all_fasta"/>
+        </param>
+
     </inputs>
     <outputs>
         <data name="out_file" format="data_manager_json" />
