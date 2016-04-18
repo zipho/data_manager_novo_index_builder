@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 from json import loads, dumps
 
-DEFAULT_DATA_TABLE_NAME = "novocraft_index"
+DEFAULT_DATA_TABLE_NAME = "novoalign_index"
 
 def get_dbkey_id_name(params):
     # TODO: ensure sequence_id is unique and does not already appear in location file
@@ -24,7 +24,7 @@ def get_dbkey_id_name(params):
         sequence_desc = sequence_name
     return sequence_id, sequence_name, sequence_desc
 
-def _make_novocraft_index(data_manager_dict, fasta_filename, target_directory, sequence_id, sequence_name, data_table_name=DEFAULT_DATA_TABLE_NAME):
+def _make_novoalign_index(data_manager_dict, fasta_filename, target_directory, sequence_id, sequence_name, data_table_name=DEFAULT_DATA_TABLE_NAME):
     if os.path.exists(target_directory) and not os.path.isdir(target_directory):
         print("Output directory path already exists but is not a directory: {}".format(target_directory),
               file=sys.stderr)
@@ -51,10 +51,10 @@ def _add_data_table_entry( data_manager_dict, data_table_name, data_table_entry 
     return data_manager_dict
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate Novo-craft genome index and JSON describing this")
+    parser = argparse.ArgumentParser(description="Generate Novo-Align genome index and JSON describing this")
     parser.add_argument('output_filename')
     parser.add_argument('--input_filename')
-    parser.add_argument('--data_table_name', default='novocraft_index')
+    parser.add_argument('--data_table_name', default='novoalign_index')
     args = parser.parse_args()
 
     filename = args.output_filename
@@ -66,8 +66,8 @@ def main():
 
     sequence_id, sequence_name, sequence_desc = get_dbkey_id_name(params)
 
-    #Make novocraft index
-    _make_novocraft_index(data_manager_dict, args.input_filename, target_directory, sequence_id, sequence_name, args.data_table_name or DEFAULT_DATA_TABLE_NAME )
+    #Make novoalign index
+    _make_novoalign_index(data_manager_dict, args.input_filename, target_directory, sequence_id, sequence_name, args.data_table_name or DEFAULT_DATA_TABLE_NAME )
 
     open(filename, 'wb').write(dumps( data_manager_dict ))
 

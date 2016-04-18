@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<tool id="novocraft_index_builder" name="NOVO CRAFT index" tool_type="manage_data" version="0.0.1">
+<tool id="novoalign_index_builder" name="NOVO Align index" tool_type="manage_data" version="0.0.1">
     <description>Build an index for use by the Novo Craft mapping tool</description>
     <stdio>
         <exit_code range=":-1" />
@@ -10,7 +10,7 @@
         <requirement type="package" version="3.04.01">novocraft</requirement>
     </requirements>
     <command interpreter="python">
-        novocraft_index_builder.py "${out_file}" --input_filename "${input_fasta.fields.path}" --data_table_name "novocraft_index"
+        novoalign_index_builder.py "${out_file}" --input_filename "${input_fasta.fields.path}" --data_table_name "novoalign_index"
     </command>
     <inputs>
         <param type="text" name="sequence_name" value="" label="Name of sequence" optional="False" />
